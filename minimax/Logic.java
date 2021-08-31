@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 
-/* At the root of the package, compile with:
+/* 
+    At the root of the package, compile with:
     javac minimax/Logic.java
 
     and run with:
