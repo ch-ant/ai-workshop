@@ -7,30 +7,33 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
-
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.JPasswordField;
-import javax.swing.JTextArea;
 
 
+/**
+ *      Button Class describing the functionality of a button within 
+ *      the Board where the game is played.
+ */
 class Button extends JButton implements ActionListener {
   
-    static int N = board.N, M = board.M;
+    /* coordinates */
     private int x, y;
-    Color color;
+
+    /* default color */
+    private Color color;
   
 
-    public Button(int x, int y, JFrame frame) {
+    /**
+     *      Button constructor
+     * 
+     *      @param x: coordinate X
+     *      @param y: coordinate Y
+     */
+    public Button(int x, int y) {
 
         super(x + "," + y);
         this.x = x;
@@ -39,68 +42,66 @@ class Button extends JButton implements ActionListener {
         this.setOpaque(true);
         this.setBorderPainted(true);
 
-        /*if (i == j) {
-            color = Color.WHITE;
-        }
-        else if (i + j == (N+M)/2-1) {
-            color = Color.WHITE;
-        }*/
+
+        /* color the grid like a chess board */
         if ((x + y) % 2 == 1) {
             color = Color.GRAY;
         }
         else {
             color = new Color(255, 127, 80, 255);
         }
+
+
         this.setBackground(color);
         this.setForeground(Color.BLACK);
+
+        /* Initially we want all the buttons to be disabled */
         this.setEnabled(false);
 
+        /* Add an ActionListener to handle button presses */
         this.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
-
+                /* 
+                    Get the button pressed to access it's coordinates
+                    and call the method responsible for moving the player
+                    with the respective coordinates.
+                 */
                 Button button = (Button) e.getSource();
-                //board panel = (board) button.getComponent(0).getParent();
-                //panel.setPlayerStartCoordinates(button.i, button.j);
-                logic.movePlayer(button.x, button.y);
+                Logic.movePlayer(button.x, button.y);
                 
-                /*if (button.isEnabled()) button.setEnabled(false);
-                button.setBackground(new Color(45, 45, 55, 255));
-                button.setText(" ");*/
-
-                /*if (e.getSource() == button)
-                    {
-                        // Code To popup an ERROR_MESSAGE Dialog. showConfirmDialog
-                        JOptionPane.showMessageDialog(frame, "Game Over!",
-                                            "Oops!", JOptionPane.INFORMATION_MESSAGE);
-                    }*/
-
-                //System.out.println(button.position);
             }
         });
 
+        /* Add a MouseListener to handle mouse hovers */
         this.addMouseListener(new MouseAdapter() {
 
             public void mouseEntered(MouseEvent e) {
 
                 Button button = (Button) e.getSource();
 
+                /* Highlight enabled button with light green color */
                 if (button.isEnabled()) {
-                    //button.setBackground(new Color(63, 191, 63, 255));
+                    button.setBackground(new Color(63, 191, 63, 255));
                 }
             }
+
             public void mouseExited(MouseEvent e) {
+
                 Button button = (Button) e.getSource();
 
-                //if (button.isEnabled())
-                    //button.setBackground(color);
+                /* Reset color to default value when mouse leaves button area*/
+                if (button.isEnabled())
+                    button.setBackground(color);
             }
         });
     }
 
 
-
+    /**
+     * Sets the text of a Button to display its x and y coordinates.
+     */
     public void setDefaultText() {
         this.setText(this.x + "," + this.y);
     }
@@ -113,25 +114,32 @@ class Button extends JButton implements ActionListener {
     }
 }
 
-public class board extends JPanel{
+
+/**
+ *      Board Class describing the GUI which consists of a JOptionPane
+ *      to get the initial user input and a GridLayout Board with Buttons
+ *      where the game is played.
+ */
+public class Board extends JPanel{
     
+    /* 
+        The Board consists of N rows and M columns.
+        Higher values have a significant impact on the A.I.'s speed
+        and therefore processing power as well.
+    */
     public static final int N = 5;
     public static final int M = 5;
     public static final int SIZE = 75;
 
     private Button[][] buttons = new Button[N][M];
-
+    private JFrame frame;
     
+    /* Default initial vaalues */
     final int defaultCompX = N % 2 == 1 ? N / 2 : N / 2 - 1;
     final int defaultCompY = 0;
     final int defaultPlayerX = N / 2;
     final int defaultPlayerY = M-1;
-    final int defaultBlackBlocksCount = 4;
-    
-
-
-    JFrame frame;
-    //static board bo;
+    final int defaultBlackBlocksCount = 3;
 
     private int compStartX, compStartY;
     private int playerStartX, playerStartY;
@@ -140,36 +148,43 @@ public class board extends JPanel{
     
 
 
-
-    public board() {
+    /**
+     * Board Constructor
+     */
+    public Board() {
 
         super(new GridLayout(N, M));
         this.setPreferredSize(new Dimension(N * SIZE, M * SIZE));
+      
 
-        //UIManager.put("Button.disabledText", new ColorUIResource(Color.BLACK));
-        //UIManager.put("Button.enabledText", new ColorUIResource(Color.BLACK));
-
-        frame = new JFrame();
-
+        /* Fill the board with Buttons */
         for (int x = 0; x < N; x++) {
             for (int y = 0; y < M; y++) {
 
-                Button button = new Button(x, y, frame);
+                Button button = new Button(x, y);
 
+                /* Also keep the buttons in an array for easier access */
                 this.buttons[x][y] = button;
                 this.add(button);
             }
         }
 
+        /* Finally create the Jframe where the Board is added */
+        frame = new JFrame();
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Minimax Game");
         frame.add(this);
         frame.pack();
+
+        /* Initially the JOptionPane is displayed to get user input
+            therefore we set the Board to not visible  */
         frame.setVisible(false);
         frame.setLocationRelativeTo(null);
     }
 
 
+    /* Getters to pass the initial input to the back-end logic */
 
     public int getCompStartX() {
         return this.compStartX;
@@ -191,132 +206,179 @@ public class board extends JPanel{
         return this.startUnavBlocks;
     }
 
-    /*public void setCompStartCoordinates(int X, int Y) {
-        this.compStartX = X;
-        this.compStartY = Y;
-    }
 
-    public void setPlayerStartCoordinates(int X, int Y) {
-        this.playerStartX = X;
-        this.playerStartY = Y;
-    }*/
-
-
-    /* TESTED */
+    /**
+     * Sets the frame with the Board to visible
+     */
     public void setVisible(boolean b) {
         this.frame.setVisible(b);
     }
 
 
-    /* TESTED */
+    /**
+     *      Main method responsible for updating the Board's Buttons using the given grid. 
+     *      The player's coordinates are also needed to update (set to enabled) Buttons 
+     *      that are a potential player moves.
+     * 
+     *      @param grid: An array used by the back-end logic to describe the different game states
+     *      @param inputPlayerX: player X coordinates.
+     *      @param inputPlayerY: player Y coordinate
+     */
     public void updateButtonsGrid(int[][] grid, int inputPlayerX, int inputPlayerY) {
 
+
+        /* Check every button */
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < M; j++ ) {
 
                 Button button = this.buttons[i][j];
                 int blockStatus = grid[i][j];
                 
+                /* Initially set to disabled to avoid inconsistencies */
                 button.setEnabled(false);
 
-                if (blockStatus == logic.FREE_BLOCK) {
+                /* and update according to the status in the grid */
+                if (blockStatus == Logic.FREE_BLOCK) {
                     button.setDefaultText();
                 }
 
-                else if (blockStatus == logic.UNAVAILABLE_BLOCK) {
+                else if (blockStatus == Logic.UNAVAILABLE_BLOCK) {
                     button.setBackground(new Color(45, 45, 55, 255));
                     button.setText(" ");
                 }
 
-                else if (blockStatus == logic.AI) {
-                    button.setText("<html><font color=red>" + "A.I." + "</font></html>");
+                else if (blockStatus == Logic.AI) {
+                    button.setText("A.I.");
                     button.setBackground(new Color(100, 150, 250, 255));
                 }
 
-                else if (blockStatus == logic.PLAYER) {
-                    button.setText("<html><font color = black>YOU</font></html>");
+                else if (blockStatus == Logic.PLAYER) {
+                    button.setText("YOU");
                     button.setBackground(new Color(200, 75, 100, 255));
                 }
 
             }
         }
 
+        /* Finally update the potential player moves by enabling the respective buttons */
         updatePotentialPlayerMoves(grid, inputPlayerX, inputPlayerY);
 
     }
 
 
-    /* TESTED */
+    /**
+     *      Method responsible for enabling the Buttons on the Board that
+     *      correspond to a potential player move, so that the user can click
+     *      them and proceed with the game. 
+     * 
+     *      The destination block and any crossed block must be free.
+     *      Potential moves are 1 or 2 blocks in the following directions:
+     * 
+     *      UP, 
+     *      DOWN, 
+     *      LEFT, 
+     *      RIGHT,
+     *      UP LEFT, 
+     *      UP RIGHT,
+     *      DOWN LEFT, 
+     *      DOWN RIGHT
+     * 
+     *      Resulting in a total of 16 potential moves.
+     *          
+     * 
+     *      @param grid: An array used by the back-end logic to describe the different game states
+     *      @param x: player X coordinates.
+     *      @param y: player Y coordinate
+     */
     public void updatePotentialPlayerMoves(int[][] grid, int x, int y) {
 
 
-        if (logic.isPotentialMove(grid, x + 1, y)) {
+        /* 1 block DOWN */
+        if (Logic.isPotentialMove(grid, x + 1, y)) {
             this.buttons[x+1][y].setEnabled(true);
 
-            if (logic.isPotentialMove(grid, x + 2, y)) {
+            /* 2 blocks DOWN */
+            if (Logic.isPotentialMove(grid, x + 2, y)) {
                 this.buttons[x+2][y].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x - 1, y)) {
+        /* 1 block UP */
+        if (Logic.isPotentialMove(grid, x - 1, y)) {
             this.buttons[x-1][y].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x - 2, y)) {
+            /* 2 blocks UP */
+            if(Logic.isPotentialMove(grid, x - 2, y)) {
                 this.buttons[x-2][y].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x, y + 1)) {
+        /* 1 block RIGHT */
+        if (Logic.isPotentialMove(grid, x, y + 1)) {
             this.buttons[x][y+1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x, y + 2)) {
+            /* 2 blocks RIGHT */
+            if(Logic.isPotentialMove(grid, x, y + 2)) {
                 this.buttons[x][y+2].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x, y - 1)) {
+        /* 1 block LEFT */
+        if (Logic.isPotentialMove(grid, x, y - 1)) {
             this.buttons[x][y-1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x, y - 2)) {
+            /* 2 blocks LEFT */
+            if(Logic.isPotentialMove(grid, x, y - 2)) {
                 this.buttons[x][y-2].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x + 1, y + 1)) {
+        /* 1 block DOWN RIGHT */
+        if (Logic.isPotentialMove(grid, x + 1, y + 1)) {
             this.buttons[x+1][y+1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x + 2, y + 2)) {
+            /* 2 blocks DOWN RIGHT */
+            if(Logic.isPotentialMove(grid, x + 2, y + 2)) {
                 this.buttons[x+2][y+2].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x - 1, y - 1)) {
+        /* 1 block UP LEFT */
+        if (Logic.isPotentialMove(grid, x - 1, y - 1)) {
             this.buttons[x-1][y-1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x - 2, y - 2)) {
+            /* 2 blocks UP LEFT */
+            if(Logic.isPotentialMove(grid, x - 2, y - 2)) {
                 this.buttons[x-2][y-2].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x - 1, y + 1)) {
+        /* 1 block UP RIGHT */
+        if (Logic.isPotentialMove(grid, x - 1, y + 1)) {
             this.buttons[x-1][y+1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x - 2, y + 2)) {
+            /* 2 blocks UP RIGHT */
+            if(Logic.isPotentialMove(grid, x - 2, y + 2)) {
                 this.buttons[x-2][y+2].setEnabled(true);
             }
         }
 
-        if (logic.isPotentialMove(grid, x + 1, y - 1)) {
+        /* 1 block DOWN LEFT */
+        if (Logic.isPotentialMove(grid, x + 1, y - 1)) {
             this.buttons[x+1][y-1].setEnabled(true);
 
-            if(logic.isPotentialMove(grid, x + 2, y - 2)) {
+            /* 2 blocks DOWN LEFT */
+            if(Logic.isPotentialMove(grid, x + 2, y - 2)) {
                 this.buttons[x+2][y-2].setEnabled(true);
             }
         }
     }
 
 
-    /* TESTED */
+    /**
+     *      Disables all the buttons of the board.
+     *      Used while the AI is 'thinking' to prevent any further player moves.
+     */
     public void disableAllButtons() {
 
         for (Button[] row : this.buttons)         
@@ -328,6 +390,13 @@ public class board extends JPanel{
     }
 
 
+    /**
+     *      Method responsible for handling the end of a game.
+     *      Displays a message before the game is closed.
+     * 
+     *      @param msg: the message to be displayed
+     *      @param title: the title of the JOptionPane
+     */
     public void handleGameOver(String msg, String title) {
         JOptionPane.showMessageDialog(frame, msg,
             title, JOptionPane.INFORMATION_MESSAGE);
@@ -335,10 +404,20 @@ public class board extends JPanel{
     }
 
   
-    /* TESTED */
+    /**
+     *      Method responsible for displaying the initial JOptionPane 
+     *      and getting the user input for the start of the game. 
+     *      It features a randomize option where the Player and AI start
+     *      positions as well as the number of predetermined unavailable blocks
+     *      will be randomized. The user can input custom values. If any of the
+     *      fields is left empty or has invalid input the default value will be used.
+     */
     public void showStartOptionsPane() {
 
+        /* Number of unavailable predetermined blocks */
         JTextField inputUnavBlocks = new JTextField();
+
+        /* Player and AI coordinates */
         JTextField inputCompX = new JTextField();
         JTextField inputCompY = new JTextField();
         JTextField inputPlayerX = new JTextField();
@@ -365,8 +444,11 @@ public class board extends JPanel{
                 null, optionsText, optionsText[0]);
 
         
+        /* If Start button is selected */
         if (option == JOptionPane.YES_OPTION) {
 
+
+            /* try to parse the input to int and if it doesn't work use default values */
             try {
                 startUnavBlocks = Integer.parseInt(inputUnavBlocks.getText());
             }
@@ -404,33 +486,23 @@ public class board extends JPanel{
              
         }
 
+        /* Randomize button is selected so randomize everything */
         else if (option == JOptionPane.NO_OPTION) {
-            compStartX = logic.random.nextInt(board.N);
-            compStartY = logic.random.nextInt(board.M);
+            compStartX = Logic.random.nextInt(Board.N);
+            compStartY = Logic.random.nextInt(Board.M);
 
-            while(playerStartX != compStartX && 
-                    playerStartY != compStartY) {
-
-                        playerStartX = logic.random.nextInt(board.N);
-                        playerStartY = logic.random.nextInt(board.M);
+            /* Player and AI cannot be at the same position */
+            do {
+                playerStartX = Logic.random.nextInt(Board.N);
+                playerStartY = Logic.random.nextInt(Board.M);
                     }
+            while(playerStartX == compStartX && 
+            playerStartY == compStartY);
            
-            startUnavBlocks = logic.random.nextInt((board.M*board.N) / 2);
+            startUnavBlocks = Logic.random.nextInt((Board.M*Board.N) / 3);
         }
 
         else System.exit(0);
     }
-    
 
-    
-    public static void main(String[] args) {
-
-        board b = new board();
-        b.showStartOptionsPane();
-        b.buttons[0][0].setText("A.I.");
-        b.setVisible(true);
-                
-        
-
-    }
 }
