@@ -5,7 +5,7 @@ This repo features two separate projects which implement A.I. algorithms develop
 ### PROJECT 1: Minimax Board Game
 <br>
 
-The first project is a turn-based board game where the user plays against the computer. It features a GUI for user options at the start of the game and for the game itself. Both the user and the computer occupy one block of the board and can move up to two blocks in any direction, horizontally included. The origin block and any crossed block are made unaivalable, meaning they cannot be crossed again. When one's turn arrives with no available moves the opposing player wins. 
+The first project is a turn-based board game where the user plays against the computer. It features a GUI for user options at the start of the game and for the game itself. Both the user and the computer occupy one block of the board and can move up to two blocks in any direction, horizontally included. The origin block and any crossed block are made unaivalable, meaning they cannot be crossed again. When one's turn arrives with no available moves the opposing player wins. The project also outlines front and back-end developement.
 
 The [Minimax algorithm](https://en.wikipedia.org/wiki/Minimax) is implemented and used by the computer to determine the next best move. The algorithm uses recursion to simulate all the possible future scenarios of any current state and eventually picks the best move available as determined by the Minimax tree. As the simulation can get very resource-heavy its depth can be limited by the SIMULATION_LIMIT constant in the Logic Class.
 
