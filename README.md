@@ -1,6 +1,6 @@
 # A.I. Workshop
 
-This repo features two separate projects which implement A.I. algorithms developed based on the Artificial Intelligence course [@cse.uoi.gr](https://www.cs.uoi.gr/).<br><br>
+This repo features two separate projects which implement A.I. algorithms developed based on the [Artificial Intelligence](https://www.cs.uoi.gr/course/artificial-intelligence/?lang=en) course [@cse.uoi.gr](https://www.cs.uoi.gr/).<br><br>
  
 ### PROJECT 1: Minimax Board Game
 <br>
